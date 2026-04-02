@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a6b3c">
+<title>Servele</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="logo">Serve<em>le</em></div>
+  <div class="hctrl">
+    <button class="acct-chip guest" id="acctBtn"><div class="avatar" id="acctAvatar">?</div><span id="acctLabel">Sign In</span></button>
+    <button class="ibtn" id="statsBtn">&#x1F4CA;</button>
+    <button class="ibtn" id="darkBtn">&#x1F319;</button>
+  </div>
+</header>
+<div class="mini-status">
+  <div class="ms-item"><div class="ms-val" id="gcount">0</div><div class="ms-lbl">Guesses</div></div>
+  <div class="ms-item"><div class="ms-val" id="tdisp">0:00</div><div class="ms-lbl">Time</div></div>
+  <div class="ms-item"><div class="ms-val" id="streak">0</div><div class="ms-lbl">Streak</div></div>
+  <div class="ms-item"><div class="ms-val" id="solved">0</div><div class="ms-lbl">Solved</div></div>
+</div>
+<div class="diff-bar">
+  <span class="diff-lbl">Pool:</span>
+  <button class="diff-btn on" id="d25">Top 25</button>
+  <button class="diff-btn" id="d50">Top 50</button>
+  <button class="diff-btn" id="d75">Top 75</button>
+  <button class="diff-btn" id="d100">Top 100</button>
+</div>
+<div class="search-area">
+  <input type="text" class="sinp" id="inp" placeholder="Search ATP player..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="sico">&#x1F50D;</span>
+  <div class="acdrop" id="acdrop"></div>
+</div>
+<div class="scroll-area" id="scrollArea">
+  <div class="succ" id="succ">
+    <div class="se" id="se">&#x1F3BE;</div>
+    <div class="st" id="stitle">Brilliant!</div>
+    <div class="ss" id="ssub"></div>
+    <div class="sstats">
+      <div class="sstat"><div class="ssv" id="sg">-</div><div class="ssl">Guesses</div></div>
+      <div class="sstat"><div class="ssv" id="stm">-</div><div class="ssl">Time</div></div>
+      <div class="sstat"><div class="ssv" id="ssk">-</div><div class="ssl">Streak</div></div>
+    </div>
+    <div class="sact">
+      <button class="btn bp" id="nextBtn">Next</button>
+      <button class="btn bs" id="shareBtn">Share</button>
+    </div>
+  </div>
+  <div class="succ" id="reveal" style="display:none">
+    <div class="se">&#x1F3C1;</div>
+    <div class="st">The answer was...</div>
+    <div class="ss" id="revealName" style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px"></div>
+    <div class="ss" id="revealDetail"></div>
+    <div class="sact" style="margin-top:12px">
+      <button class="btn bp" id="revealNextBtn">Next Puzzle</button>
+    </div>
+  </div>
+  <div class="legend">
+    <div class="li"><div class="ld c"></div>Correct</div>
+    <div class="li"><div class="ld w"></div>Close</div>
+    <div class="li"><div class="ld x"></div>Wrong</div>
+    <div style="font-size:11px;color:var(--text3)">arrows = direction</div>
+  </div>
+  <div class="rnote" id="rnote">Top 25 &middot; Rankings 1 Apr 2026</div>
+  <div id="rows"></div>
+</div>
+<div class="bottom-bar">
+  <div class="bb-info">
+    <div class="bb-item">&#x1F3AF; <strong id="fg">0</strong></div>
+    <div class="bb-item">&#x23F1; <strong id="ft">0:00</strong></div>
+  </div>
+  <button class="btn bs btn-sm" id="newBtn">New</button>
+  <button class="btn bs btn-sm" id="giveUpBtn" style="color:#d93025;border-color:#d93025">Give Up</button>
+</div>
+<div class="mo" id="authMo">
+  <div class="md">
+    <div class="md-handle"></div>
+    <div class="mh"><div class="mt">Account</div><button class="mc" id="authClose">X</button></div>
+    <div id="authIn" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+        <div id="profAv" style="width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
+        <div><div style="font-weight:700;font-size:15px" id="profName"></div><div style="font-size:12px;color:var(--text3)" id="profEmail"></div></div>
+      </div>
+      <div class="sg" id="profStats"></div>
+      <button class="btn bs" id="logoutBtn" style="width:100%;justify-content:center">Sign Out</button>
+    </div>
+    <div id="authForms">
+      <div class="auth-tabs">
+        <button class="auth-tab on" id="tabLogin">Sign In</button>
+        <button class="auth-tab" id="tabReg">Register</button>
+      </div>
+      <div id="formLogin" class="frow">
+        <input class="finp" id="li_email" placeholder="Email address" type="email">
+        <input class="finp" id="li_pass" placeholder="Password" type="password">
+        <div class="ferr" id="li_err"></div>
+        <button class="btn bp" id="li_btn" style="width:100%;justify-content:center">Sign In</button>
+      </div>
+      <div id="formReg" class="frow" style="display:none">
+        <input class="finp" id="re_email" placeholder="Email address" type="email">
+        <input class="finp" id="re_user" placeholder="Username (3-20 chars)" autocapitalize="none">
+        <input class="finp" id="re_pass" placeholder="Password (min 6 chars)" type="password">
+        <input class="finp" id="re_pass2" placeholder="Confirm password" type="password">
+        <div class="ferr" id="re_err"></div>
+        <div class="fok" id="re_ok"></div>
+        <button class="btn bp" id="re_btn" style="width:100%;justify-content:center">Create Account</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mo" id="statsMo">
+  <div class="md">
+    <div class="md-handle"></div>
+    <div class="mh"><div class="mt">Statistics</div><button class="mc" id="statsClose">X</button></div>
+    <div class="sg" id="sgrid"></div>
+    <button class="btn bs" id="resetSt" style="width:100%;justify-content:center">Reset Statistics</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
