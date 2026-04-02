@@ -615,6 +615,8 @@ document.addEventListener('DOMContentLoaded', function() {
   g('d100').addEventListener('click', function() { setDiff(100); });
 
   g('darkBtn').addEventListener('click', toggleDark);
+  g('aboutBtn').addEventListener('click', function() { openMo('aboutMo'); });
+  g('aboutClose').addEventListener('click', function() { closeMo('aboutMo'); });
   g('statsBtn').addEventListener('click', openStats);
   g('acctBtn').addEventListener('click', openAuth);
   g('authClose').addEventListener('click', function() { closeMo('authMo'); });
@@ -629,7 +631,7 @@ document.addEventListener('DOMContentLoaded', function() {
   g('resetSt').addEventListener('click', function() {
     if (confirm('Reset all stats?')) { sv(emptyS()); syncAccount(); openStats(); updateHdr(ld()); }
   });
-  ['authMo','statsMo'].forEach(function(id) {
+  ['authMo','statsMo','aboutMo'].forEach(function(id) {
     g(id).addEventListener('click', function(e) { if (e.target === g(id)) closeMo(id); });
   });
   g('newBtn').addEventListener('click', function() {

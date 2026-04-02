@@ -20,6 +20,7 @@
   <div class="logo">Serve<em>le</em></div>
   <div class="hctrl">
     <button class="acct-chip guest" id="acctBtn"><div class="avatar" id="acctAvatar">?</div><span id="acctLabel">Sign In</span></button>
+    <button class="ibtn" id="aboutBtn">&#x2139;&#xFE0F;</button>
     <button class="ibtn" id="statsBtn">&#x1F4CA;</button>
     <button class="ibtn" id="darkBtn">&#x1F319;</button>
   </div>
@@ -124,6 +125,52 @@
     <div class="mh"><div class="mt">Statistics</div><button class="mc" id="statsClose">X</button></div>
     <div class="sg" id="sgrid"></div>
     <button class="btn bs" id="resetSt" style="width:100%;justify-content:center">Reset Statistics</button>
+  </div>
+</div>
+<div class="mo" id="aboutMo">
+  <div class="md">
+    <div class="md-handle"></div>
+    <div class="mh"><div class="mt">How to Play</div><button class="mc" id="aboutClose">X</button></div>
+
+    <div class="about-logo">Serve<em>le</em> Unlimited</div>
+    <p class="about-sub">Guess the mystery ATP player. You have unlimited attempts &mdash; use the clues to narrow it down.</p>
+
+    <div class="about-section-title">The Clues</div>
+    <div class="about-clues">
+      <div class="about-clue-row"><span class="about-clue-lbl">Country</span><span class="about-clue-desc">Player's nationality</span></div>
+      <div class="about-clue-row"><span class="about-clue-lbl">Ranking</span><span class="about-clue-desc">Current ATP ranking</span></div>
+      <div class="about-clue-row"><span class="about-clue-lbl">Age</span><span class="about-clue-desc">Player's age in years</span></div>
+      <div class="about-clue-row"><span class="about-clue-lbl">Titles</span><span class="about-clue-desc">Career ATP titles won</span></div>
+      <div class="about-clue-row"><span class="about-clue-lbl">Hand</span><span class="about-clue-desc">Dominant playing hand</span></div>
+      <div class="about-clue-row"><span class="about-clue-lbl">Height</span><span class="about-clue-desc">Player's height</span></div>
+    </div>
+
+    <div class="about-section-title">Tile Colours</div>
+    <div class="about-tiles">
+      <div class="about-tile-row">
+        <div class="attr-tile ok" style="width:44px;height:44px;border-radius:8px;border:none;flex-shrink:0"><div class="attr-val">&#x2713;</div></div>
+        <div class="about-tile-desc"><strong>Green</strong> &mdash; Exact match</div>
+      </div>
+      <div class="about-tile-row">
+        <div class="attr-tile cl" style="width:44px;height:44px;border-radius:8px;border:none;flex-shrink:0"><div class="attr-val">~</div></div>
+        <div class="about-tile-desc"><strong>Yellow</strong> &mdash; Close. For numbers: ranking &plusmn;3&ndash;10, age &plusmn;2, titles &plusmn;3, height &plusmn;1&rdquo;</div>
+      </div>
+      <div class="about-tile-row">
+        <div class="attr-tile no" style="width:44px;height:44px;border-radius:8px;border:none;flex-shrink:0"><div class="attr-val">&times;</div></div>
+        <div class="about-tile-desc"><strong>Grey</strong> &mdash; No match</div>
+      </div>
+    </div>
+
+    <div class="about-section-title">Arrows</div>
+    <p class="about-body">On ranking, age, titles and height &mdash; an arrow tells you which direction the answer is. &uarr; means the answer is higher, &darr; means lower.</p>
+
+    <div class="about-section-title">Difficulty</div>
+    <p class="about-body">Choose your player pool: <strong>Top 25</strong> sticks to household names, <strong>Top 100</strong> includes every player in the current ATP rankings. Rankings are updated as of <strong>1 April 2026</strong>.</p>
+
+    <div class="about-section-title">Stuck?</div>
+    <p class="about-body">Hit <strong>Give Up</strong> to reveal the answer and jump straight to the next puzzle. Your streak won't be affected.</p>
+
+    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3)">serveleunlimited.com</div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
