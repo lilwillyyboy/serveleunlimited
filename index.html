@@ -47,6 +47,7 @@
 </div>
 <div class="diff-bar">
   <span class="diff-lbl">Pool:</span>
+  <button class="diff-btn" id="dDaily">&#x1F4C5; Daily</button>
   <button class="diff-btn on" id="d25">Top 25</button>
   <button class="diff-btn" id="d50">Top 50</button>
   <button class="diff-btn" id="d75">Top 75</button>
@@ -79,6 +80,20 @@
     <div class="ss" id="revealDetail"></div>
     <div class="sact" style="margin-top:12px">
       <button class="btn bp" id="revealNextBtn">Next Puzzle</button>
+    </div>
+  </div>
+  <!-- DAILY COMPLETED PANEL -->
+  <div class="succ" id="dailyDone" style="display:none">
+    <div class="se">&#x1F3BE;</div>
+    <div class="st">Daily Complete!</div>
+    <div class="ss">Come back tomorrow for a new puzzle</div>
+    <div class="sstats">
+      <div class="sstat"><div class="ssv" id="dailyDoneGuesses">-</div><div class="ssl">Guesses</div></div>
+      <div class="sstat"><div class="ssv" id="dailyDoneTime">-</div><div class="ssl">Time</div></div>
+    </div>
+    <div class="ss" id="dailyCountdown" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text3);margin-top:4px"></div>
+    <div class="sact" style="margin-top:16px">
+      <button class="btn bs" id="dailyShareBtn">&#x1F4CB; Share</button>
     </div>
   </div>
   <div class="legend">

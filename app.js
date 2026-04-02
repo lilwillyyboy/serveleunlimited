@@ -121,6 +121,7 @@ var iv = null;
 var aidx = -1;
 var me = null;
 var ttm = null;
+var isDaily = false;
 
 function g(id) { return document.getElementById(id); }
 
@@ -184,12 +185,202 @@ function daysBetween(d1, d2) {
   return Math.round((new Date(d1) - new Date(d2)) / 86400000);
 }
 
+
+// --- Daily puzzle ---
+// Seeded PRNG (mulberry32)
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function seededShuffle(arr, seed) {
+  var rng = mulberry32(seed);
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(rng() * (i + 1));
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+
+function buildDailySequence() {
+  var base = [];
+  for (var i = 0; i < 100; i++) base.push(i);
+  var seq = seededShuffle(base, 20240101);
+  while (seq.length < 2000) {
+    seq = seq.concat(seededShuffle(base, seq.length * 7919));
+  }
+  return seq;
+}
+
+var DAILY_SEQ = buildDailySequence();
+
+// Returns PT date string for right now
+function todayPT() {
+  return new Date().toLocaleDateString('en-CA', {timeZone: 'America/Los_Angeles'});
+}
+
+// Returns ms until midnight PT
+function msUntilMidnightPT() {
+  var now = new Date();
+  // Get current time in PT
+  var ptNow = new Date(now.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}));
+  var ptMidnight = new Date(ptNow);
+  ptMidnight.setHours(24, 0, 0, 0);
+  return ptMidnight - ptNow;
+}
+
+// Get today's player index from sequence using date as seed
+function getDailyPlayerIndex() {
+  var dateStr = todayPT(); // e.g. "2026-04-01"
+  var parts = dateStr.split('-');
+  var dayNum = parseInt(parts[0]) * 10000 + parseInt(parts[1]) * 100 + parseInt(parts[2]);
+  // Use dayNum mod sequence length
+  var epochDay = Math.floor(Date.now() / 86400000);
+  return DAILY_SEQ[epochDay % DAILY_SEQ.length];
+}
+
+function getDailyPlayer() {
+  return ALL[getDailyPlayerIndex()];
+}
+
+// Save/load daily state
+function getDailyState() {
+  try {
+    var d = JSON.parse(localStorage.getItem('sv_daily'));
+    if (!d) return null;
+    if (d.date !== todayPT()) return null; // stale
+    return d;
+  } catch(e) { return null; }
+}
+
+function saveDailyState(data) {
+  data.date = todayPT();
+  localStorage.setItem('sv_daily', JSON.stringify(data));
+}
+
+var dailyCountdown = null;
+
+function startDailyCountdown() {
+  if (dailyCountdown) window.clearInterval(dailyCountdown);
+  function update() {
+    var ms = msUntilMidnightPT();
+    var totalSec = Math.floor(ms / 1000);
+    var h = Math.floor(totalSec / 3600);
+    var m = Math.floor((totalSec % 3600) / 60);
+    var s = totalSec % 60;
+    var str = ('0'+h).slice(-2) + ':' + ('0'+m).slice(-2) + ':' + ('0'+s).slice(-2);
+    var el = g('dailyCountdown');
+    if (el) el.textContent = 'Next puzzle in ' + str;
+  }
+  update();
+  dailyCountdown = window.setInterval(update, 1000);
+}
+
+function enterDailyMode() {
+  isDaily = true;
+  POOL = ALL; // daily uses full top 100 pool for guessing
+  diffN = 100;
+
+  // Update diff button highlights
+  var btns = document.querySelectorAll('.diff-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('on');
+  g('dDaily').classList.add('on');
+
+  g('rnote').textContent = 'Daily Puzzle \u00b7 ' + todayPT();
+
+  var state = getDailyState();
+  if (state && state.completed) {
+    // Already played today - show completed state
+    showDailyCompleted(state);
+    return;
+  }
+
+  // Start a fresh daily game
+  mystery = getDailyPlayer();
+  guesses = [];
+  egrid = [];
+  won = false;
+  elapsed = 0;
+
+  // Restore in-progress state if any
+  if (state && state.guesses && state.guesses.length > 0) {
+    // Re-apply saved guesses
+    for (var j = 0; j < state.guesses.length; j++) {
+      var savedG = state.guesses[j];
+      var p = ALL.find(function(x) { return x.name === savedG; });
+      if (p) {
+        var cells = evalP(p);
+        guesses.push({p: p, cells: cells});
+        var row = '';
+        for (var k = 0; k < cells.length; k++) {
+          row += cells[k].type === 'ok' ? '\u{1F7E9}' : cells[k].type === 'cl' ? '\u{1F7E8}' : '\u{2B1C}';
+        }
+        egrid.push(row);
+      }
+    }
+    elapsed = state.elapsed || 0;
+  }
+
+  startT();
+  render();
+  var inp = g('inp');
+  inp.value = '';
+  inp.disabled = false;
+  g('gcount').textContent = guesses.length || '0';
+  g('fg').textContent = guesses.length || '0';
+  g('succ').classList.remove('on');
+  g('reveal').style.display = 'none';
+  g('dailyDone').style.display = 'none';
+  g('acdrop').classList.remove('open');
+  aidx = -1;
+  g('scrollArea').scrollTop = 0;
+}
+
+function exitDailyMode() {
+  isDaily = false;
+  if (dailyCountdown) { window.clearInterval(dailyCountdown); dailyCountdown = null; }
+}
+
+function showDailyCompleted(state) {
+  window.clearInterval(iv); iv = null;
+  g('inp').disabled = true;
+  g('succ').classList.remove('on');
+  g('reveal').style.display = 'none';
+
+  // Restore guesses for display
+  guesses = [];
+  egrid = state.egrid || [];
+  if (state.guesses) {
+    for (var i = 0; i < state.guesses.length; i++) {
+      var p = null;
+      for (var j = 0; j < ALL.length; j++) {
+        if (ALL[j].name === state.guesses[i]) { p = ALL[j]; break; }
+      }
+      if (p) guesses.push({p: p, cells: evalP(p)});
+    }
+  }
+  render();
+
+  g('dailyDoneGuesses').textContent = state.guesses ? state.guesses.length : '?';
+  g('dailyDoneTime').textContent = state.elapsed ? fmt(state.elapsed) : '-';
+  g('dailyDone').style.display = 'block';
+  g('scrollArea').scrollTop = 0;
+  startDailyCountdown();
+  won = true;
+}
+
 // --- Difficulty ---
 function setDiff(n) {
-  if (n === diffN) return;
+  if (!isDaily && n === diffN) return;
   if (!won && guesses.length > 0) {
     if (!confirm('Changing difficulty starts a new puzzle. Continue?')) return;
   }
+  if (isDaily) exitDailyMode();
   diffN = n;
   POOL = ALL.slice(0, n);
   var btns = document.querySelectorAll('.diff-btn');
@@ -221,6 +412,7 @@ function stopT() {
 
 // --- Game ---
 function newGame() {
+  if (isDaily) { enterDailyMode(); return; }
   mystery = POOL[Math.floor(Math.random() * POOL.length)];
   guesses = [];
   egrid = [];
@@ -310,6 +502,9 @@ function guess(name) {
   g('gcount').textContent = guesses.length;
   g('fg').textContent = guesses.length;
   render();
+  if (isDaily) {
+    saveDailyState({guesses: guesses.map(function(x){return x.p.name;}), egrid: egrid, elapsed: elapsed, completed: p.name === mystery.name});
+  }
   if (p.name === mystery.name) onWin();
 }
 
@@ -339,6 +534,17 @@ function onWin() {
   g('sg').textContent = guesses.length;
   g('stm').textContent = fmt(e);
   g('ssk').textContent = s.streak;
+  if (isDaily) {
+    saveDailyState({guesses: guesses.map(function(x){return x.p.name;}), egrid: egrid, elapsed: e, completed: true});
+    // Show daily done panel instead of generic win for daily
+    g('succ').classList.remove('on');
+    g('dailyDoneGuesses').textContent = guesses.length;
+    g('dailyDoneTime').textContent = fmt(e);
+    g('dailyDone').style.display = 'block';
+    g('scrollArea').scrollTop = 0;
+    startDailyCountdown();
+    return;
+  }
   g('succ').classList.add('on');
   g('scrollArea').scrollTop = 0;
 }
@@ -438,7 +644,8 @@ function openStats() {
 }
 
 function doShare() {
-  var lines = ['Servele - Top ' + diffN, guesses.length + ' guess' + (guesses.length !== 1 ? 'es' : '') + ' / ' + fmt(elapsed), '', egrid.join('\n'), '', 'serveleunlimited.com']; var txt = lines.join('\n');
+  var label = isDaily ? 'Servele - Daily Puzzle ' + todayPT() : 'Servele - Top ' + diffN;
+  var lines = [label, guesses.length + ' guess' + (guesses.length !== 1 ? 'es' : '') + ' / ' + fmt(elapsed), '', egrid.join('\n'), '', 'serveleunlimited.com']; var txt = lines.join('\n');
   if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function() { toast('Copied!'); }); }
   else { toast('Copy not supported'); }
 }
@@ -609,6 +816,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   updateHdr(ld());
 
+  g('dDaily').addEventListener('click', function() { enterDailyMode(); });
   g('d25').addEventListener('click', function() { setDiff(25); });
   g('d50').addEventListener('click', function() { setDiff(50); });
   g('d75').addEventListener('click', function() { setDiff(75); });
@@ -642,6 +850,7 @@ document.addEventListener('DOMContentLoaded', function() {
   g('giveUpBtn').addEventListener('click', giveUp);
   g('revealNextBtn').addEventListener('click', newGame);
   g('shareBtn').addEventListener('click', doShare);
+  g('dailyShareBtn').addEventListener('click', doShare);
 
   var inp = g('inp');
   inp.addEventListener('input', function() { updateAC(inp.value); });

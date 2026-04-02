@@ -128,3 +128,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 .about-tiles{display:flex;flex-direction:column;gap:10px}
 .about-tile-row{display:flex;align-items:center;gap:14px}
 .about-tile-desc{font-size:13px;color:var(--text2);line-height:1.5}
+
+/* -- DAILY BUTTON --------------------------------------------------- */
+#dDaily.on{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-dark] #dDaily.on{color:#131311}
+#dDaily{font-weight:700}
