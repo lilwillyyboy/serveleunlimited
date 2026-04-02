@@ -188,11 +188,17 @@ function daysBetween(d1, d2) {
 
 // --- Daily puzzle ---
 // Seeded PRNG (mulberry32)
+function imul32(a, b) {
+  // Safe 32-bit multiply without Math.imul
+  var ah = (a >>> 16) & 0xffff, al = a & 0xffff;
+  var bh = (b >>> 16) & 0xffff, bl = b & 0xffff;
+  return ((al * bl) + (((ah * bl + al * bh) << 16) >>> 0) | 0);
+}
 function mulberry32(seed) {
   return function() {
     seed |= 0; seed = seed + 0x6D2B79F5 | 0;
-    var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    var t = imul32(seed ^ seed >>> 15, 1 | seed);
+    t = t + imul32(t ^ t >>> 7, 61 | t) ^ t;
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
 }
@@ -217,7 +223,8 @@ function buildDailySequence() {
   return seq;
 }
 
-var DAILY_SEQ = buildDailySequence();
+var DAILY_SEQ = null;
+function getDailySeq() { if (!DAILY_SEQ) DAILY_SEQ = buildDailySequence(); return DAILY_SEQ; }
 
 // Returns PT date string for right now
 function todayPT() {
@@ -241,7 +248,7 @@ function getDailyPlayerIndex() {
   var dayNum = parseInt(parts[0]) * 10000 + parseInt(parts[1]) * 100 + parseInt(parts[2]);
   // Use dayNum mod sequence length
   var epochDay = Math.floor(Date.now() / 86400000);
-  return DAILY_SEQ[epochDay % DAILY_SEQ.length];
+  var seq = getDailySeq(); return seq[epochDay % seq.length];
 }
 
 function getDailyPlayer() {
@@ -378,7 +385,7 @@ function showDailyCompleted(state) {
 function setDiff(n) {
   if (!isDaily && n === diffN) return;
   if (!won && guesses.length > 0) {
-    if (!confirm('Changing difficulty starts a new puzzle. Continue?')) return;
+    if (!window.confirm('Changing difficulty starts a new puzzle. Continue?')) return;
   }
   if (isDaily) exitDailyMode();
   diffN = n;
@@ -837,13 +844,13 @@ document.addEventListener('DOMContentLoaded', function() {
   g('re_pass2').addEventListener('keydown', function(e) { if (e.key === 'Enter') doRegister(); });
   g('statsClose').addEventListener('click', function() { closeMo('statsMo'); });
   g('resetSt').addEventListener('click', function() {
-    if (confirm('Reset all stats?')) { sv(emptyS()); syncAccount(); openStats(); updateHdr(ld()); }
+    if (window.confirm('Reset all stats?')) { sv(emptyS()); syncAccount(); openStats(); updateHdr(ld()); }
   });
   ['authMo','statsMo','aboutMo'].forEach(function(id) {
     g(id).addEventListener('click', function(e) { if (e.target === g(id)) closeMo(id); });
   });
   g('newBtn').addEventListener('click', function() {
-    if (!won && guesses.length > 0) { if (!confirm('Abandon this puzzle?')) return; }
+    if (!won && guesses.length > 0) { if (!window.confirm('Abandon this puzzle?')) return; }
     newGame();
   });
   g('nextBtn').addEventListener('click', newGame);
