@@ -318,7 +318,7 @@ function enterDailyMode() {
         guesses.push({p: p, cells: cells});
         var row = '';
         for (var k = 0; k < cells.length; k++) {
-          row += cells[k].type === 'ok' ? '\u{1F7E9}' : cells[k].type === 'cl' ? '\u{1F7E8}' : '\u{2B1C}';
+          row += cells[k].type === 'ok' ? '🟩' : cells[k].type === 'cl' ? '🟨' : '⬜';
         }
         egrid.push(row);
       }
