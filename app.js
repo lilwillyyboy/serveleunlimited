@@ -139,8 +139,8 @@ function toast(msg) {
   var t = g('toast');
   t.textContent = msg;
   t.classList.add('on');
-  clearTimeout(ttm);
-  ttm = setTimeout(function() { t.classList.remove('on'); }, 2600);
+  window.clearTimeout(ttm);
+  ttm = window.setTimeout(function() { t.classList.remove('on'); }, 2600);
 }
 
 function openMo(id) { g(id).classList.add('open'); }
@@ -202,10 +202,10 @@ function setDiff(n) {
 
 // --- Timer ---
 function startT() {
-  clearInterval(iv);
+  window.clearInterval(iv);
   t0 = Date.now();
   elapsed = 0;
-  iv = setInterval(function() {
+  iv = window.setInterval(function() {
     elapsed = Math.floor((Date.now() - t0) / 1000);
     var s = fmt(elapsed);
     g('tdisp').textContent = s;
@@ -213,7 +213,7 @@ function startT() {
   }, 1000);
 }
 function stopT() {
-  clearInterval(iv);
+  window.clearInterval(iv);
   iv = null;
   elapsed = Math.floor((Date.now() - t0) / 1000);
   return elapsed;
@@ -245,7 +245,7 @@ function newGame() {
 function giveUp() {
   if (won) return;
   if (!mystery) return;
-  clearInterval(iv);
+  window.clearInterval(iv);
   iv = null;
   g('inp').disabled = true;
   g('revealName').textContent = mystery.name;
@@ -550,7 +550,7 @@ function doRegister() {
   lset('email:' + email, {username: user});
   ok.textContent = 'Account created!';
   ok.classList.add('on');
-  setTimeout(function() { signIn(ud); closeMo('authMo'); toast('Welcome, ' + user + '!'); }, 700);
+  window.setTimeout(function() { signIn(ud); closeMo('authMo'); toast('Welcome, ' + user + '!'); }, 700);
 }
 
 function doLogout() {
